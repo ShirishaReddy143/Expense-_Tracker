@@ -1,0 +1,144 @@
+body, p {
+  font-family: 'Lato', sans-serif;
+}
+
+
+/*
+ * Navbar
+ */
+
+.navbar .nav-link {
+  color: rgba(0, 0, 0, .75) !important;
+  font-weight: 600;
+}
+.navbar .nav-link:hover {
+  color: rgba(0, 0, 0, .5) !important;
+}
+.navbar .nav-link.disabled {
+  color: rgba(0, 0, 0, .35) !important;
+}
+
+.navbar-brand:hover {
+  opacity: .5;
+}
+
+
+/*
+ * Random stuff
+ */
+
+.btn-circle {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 1rem;
+  font-size: 75%;
+  text-align: center;
+  line-height: 2rem;
+}
+
+.form-group-required label::after {
+  content: ' *';
+  color: var(--danger);
+  font-weight: bold;
+}
+
+.text-highlight {
+  background-color: var(--yellow);
+}
+
+
+/*
+ * Toggle visibility based on parent :hover state (or :active for touch screens)
+ */
+
+.v-child {
+  visibility: hidden;
+}
+
+.v-parent:active.v-parent-bg,
+.v-parent:hover.v-parent-bg {
+  background-color: var(--light);
+}
+
+.v-parent:active .v-child,
+.v-parent:hover .v-child,
+.v-child.show {
+  visibility: visible;
+}
+
+
+/*
+ * Custom nav style
+ */
+
+.nav-custom a {
+ color: inherit;
+}
+.nav-custom a:hover {
+  text-decoration: underline;
+}
+.nav-custom .nav-link.active {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.nav-collapse {
+  color: inherit !important;
+  /* from Bootstrap's .nav */
+  font-size: 0.930125rem;
+}
+.nav-collapse .fa {
+  transition: .1s transform ease-in-out;
+}
+.nav-collapse[aria-expanded="true"] .fa {
+  transform: rotate(90deg);
+}
+
+
+/*
+ * Popover custom style (base on `.card.bg-dark`)
+ */
+
+.popover {
+  background: var(--dark);
+  color: var(--white);
+  border: 1px solid rgba(0,0,0,0.125);
+}
+
+.popover-header {
+  background-color: rgba(0,0,0,0.03);
+  border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+
+.popover-body {
+  color: var(--white);
+}
+
+/* Specific to our use */
+.bs-popover-left > .arrow::before {
+  border-left-color: #2e3338;
+}
+.bs-popover-left > .arrow::after {
+  border-left-color: var(--dark);
+}
+.bs-popover-top > .arrow::before {
+  border-top-color: #2e3338;
+}
+.bs-popover-top > .arrow::after {
+  border-top-color: var(--dark);
+}
+
+
+/*
+ * CSS animations
+ */
+
+@keyframes fadein {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+.fx-fadein {
+  animation-name: fadein;
+  animation-duration: .5s;
+}

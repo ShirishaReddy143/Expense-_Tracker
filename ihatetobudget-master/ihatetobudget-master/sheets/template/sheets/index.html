@@ -1,0 +1,163 @@
+{% extends 'sheets/common/base.html' %}
+
+{% load ihatetobudget_extras %}
+
+{% block content %}
+  {% include 'sheets/macros/page_header_beginning.html' with title=title %}
+    {% include 'sheets/macros/new_expense_button.html' %}
+  {% include 'sheets/macros/page_header_end.html' %}
+
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card text-white bg-primary mb-2">
+        <div class="card-body">
+          <div class="media">
+            <div class="media-body">
+              <h6 class="mt-0 text-uppercase">
+                Monthly average spend
+                <i class="fa fa-question-circle-o" data-toggle="tooltip" title="Only completed months are included"></i>
+              </h6>
+
+              <span class="h4 fx-fadein">{{ monthly_average_spend|currency }}</span>
+            </div>
+            <span class="fa-stack fa-lg ml-3" style="font-size: 2rem;">
+              <i class="fa fa-circle fa-stack-2x fa-inverse"></i>
+              <i class="fa fa-calendar fa-stack-1x" style="color: var(--blue);"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card text-white bg-success mb-2">
+        <div class="card-body">
+          <div class="media">
+            <div class="media-body">
+              <h6 class="mt-0 text-uppercase">Median spend</h6>
+              <span class="h4 fx-fadein">{{ median_spend|currency }}</span>
+            </div>
+            <span class="fa-stack fa-lg ml-3" style="font-size: 2rem;">
+              <i class="fa fa-circle fa-stack-2x fa-inverse"></i>
+              <i class="fa fa-money fa-stack-1x" style="color: var(--green);"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between">
+    <h2 class="h3">Monthly insights</h2>
+
+    {% if monthly_insights_dict %}
+      <ul class="nav nav-pills justify-content-end ml-3" id="myTab" role="tablist">
+        {% for year in monthly_insights_dict %}
+        <li class="nav-item" role="presentation">
+          <a class="nav-link {% if forloop.last %}active{% endif %}" id="monthlyInsights{{ year }}-tab" data-toggle="tab" href="#monthlyInsights{{ year }}" role="tab" aria-controls="monthlyInsights{{ year }}" aria-selected="{{ forloop.first|yesno:'true,false' }}">{{ year }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+  <script>
+function currency(string_amount) {
+  // XXX: Sadly, this is not a trivial as in Python
+  // See `/ihatetobudget/templatetags/ihatetobudget_extras.py`
+  string_amount = string_amount.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  string_amount = string_amount.replace(/./g, function (match) {
+    return {
+      ',': '{{ currency_group_separator }}',
+      '.': '{{ currency_decimal_separator }}',
+    }[match] || match;
+  });
+  return '{{ currency_prefix }}' + string_amount + '{{ currency_suffix }}';
+}
+
+// Values copied from css
+Chart.defaults.global.defaultFontFamily = "'Lato', sans-serif";
+Chart.defaults.global.defaultFontColor = "#343a40";
+Chart.defaults.global.defaultFontSize = 14;
+  </script>
+
+  <div class="tab-content" id="myTabContent">
+    {% for year, category_dict in monthly_insights_dict.items %}
+      <div class="tab-pane fade {% if forloop.last %}show active{% endif %}" id="monthlyInsights{{ year }}" role="tabpanel" aria-labelledby="monthlyInsights{{ year }}-tab">
+        <canvas class="my-4" id="canvas{{ year }}"></canvas>
+        <script type="module">
+var canvas = document.getElementById('canvas{{ year }}');
+var ctx = canvas.getContext('2d');
+var chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      datasets: [
+        {% for category, amounts_per_month_list in category_dict.items %}
+          {
+            label: '{{ category|default:"No category"|escapejs }}',
+            backgroundColor: '{{ category.color|default:"#ddd" }}',
+            data: [
+              {% for amount in amounts_per_month_list %}
+                {{ amount }},
+              {% endfor %}
+            ],
+          },
+        {% endfor %}
+      ],
+    },
+    options: {
+      tooltips: {
+        mode: 'index',
+        intersect: false,
+        callbacks: {
+          label: function(tooltipItem, data) {
+            let yLabel = tooltipItem.yLabel;
+            return yLabel ? currency(yLabel.toFixed(2)) : 0;
+          },
+          footer: (tooltipItems, data) => {
+            let total = tooltipItems.reduce((a, e) => a + parseFloat(e.yLabel), .0);
+            return 'Total: ' + currency(total.toFixed(2));
+          }
+        },
+        titleFontSize: 18,
+        bodyFontSize: 16,
+      },
+      responsive: true,
+      scales: {
+        xAxes: [{
+          stacked: true,
+        }],
+        yAxes: [{
+          stacked: true,
+          ticks: {
+            callback: function (value) {
+              return currency(value.toString());
+            }
+          }
+        }]
+      },
+      onHover: function(evt) {
+        var activeElement = chart.getElementAtEvent(evt);
+        canvas.style.cursor = activeElement.length ? "pointer" : "default";
+      }
+    }
+});
+
+canvas.onclick = function(evt) {
+  var activeElement = chart.getElementAtEvent(evt);
+  if (activeElement.length) {
+    var month = activeElement[0]._index + 1;
+
+    // XXX: hardcoding the url format is bad
+    var url = '/sheets/' + {{ year }} + '/' + month + '/';
+
+    window.location.href = url;
+  }
+};
+        </script>
+      </div>
+    {% empty %}
+      <p class="text-warning">Nothing to show yet.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

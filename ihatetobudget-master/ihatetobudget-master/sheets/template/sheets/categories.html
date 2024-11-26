@@ -1,0 +1,27 @@
+{% extends 'sheets/common/base.html' %}
+
+{% load ihatetobudget_extras %}
+
+{% block content %}
+  {% include 'sheets/macros/page_header_beginning.html' with title=title %}
+    <a href="{% url 'sheets:category-new' %}" class="btn btn-block btn-success btn-sm">
+      <i class="fa fa-plus fa-fw"></i> New Category
+    </a>
+  {% include 'sheets/macros/page_header_end.html' %}
+
+  {% if object_list %}
+    <ul class="list-group list-group-flush">
+      {% for category in object_list %}
+        <li class="list-group-item d-flex justify-content-between align-items-center v-parent v-parent-bg">
+          <span class="flex-fill text-truncate" data-toggle="tooltip" data-placement="top" title="{{ category }}">
+            {% include 'sheets/macros/category.html' with category=category %}
+          </span>
+
+          {% include 'sheets/macros/category_menu.html' with category=category %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-warning">No categories yet.</p>
+  {% endif %}
+{% endblock %}

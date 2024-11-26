@@ -1,0 +1,82 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container">
+    <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'sheets:index' %}{% else %}{% url 'index' %}{% endif %}">
+      <img src="{% static 'logo.png' %}" height="30" alt="IHateToBudget" loading="lazy">
+    </a>
+    {% if user.is_authenticated %}
+      <span class="navbar-text mr-3">
+        <span class="badge badge-pill badge-info font-weight-bold">{% now "jS F" %}</span>
+      </span>
+    {% endif %}
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="dropdown-divider"></div>
+      <ul class="navbar-nav mr-auto">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            {% if current_sheet_date %}
+              <a class="nav-link" href="{% url 'sheets:sheet' current_sheet_date.year current_sheet_date.month %}">Current sheet</a>
+            {% else %}
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Current sheet</a>
+            {% endif %}
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'sheets:index' %}">Sheets</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'sheets:history' %}">History</a>
+          </li>
+        {% endif %}
+      </ul>
+      <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+          <li class="nav-item dropdown d-none d-lg-block">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-plus-square" data-toggle="tooltip" data-placement="top" title="New&hellip;"></i></a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown2">
+              <a class="dropdown-item" href="{% url 'sheets:expense-new' %}">New expense</a>
+              <a class="dropdown-item" href="{% url 'sheets:category-new' %}">New category</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown d-none d-lg-block">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-user-circle fa-lg"></i></a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown1">
+              <h6 class="dropdown-header">Signed in as <span class="font-weight-bolder">{{ request.user }}</span></h6>
+              <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa fa-sign-out fa-fw"></i> Sign out</a>
+            </div>
+          </li>
+
+          <div class="d-lg-none">
+            <div class="dropdown-divider"></div>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'sheets:expense-new' %}">New expense</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'sheets:category-new' %}">New category</a>
+            </li>
+
+            <div class="dropdown-divider"></div>
+            <span class="navbar-text h6 pb-0 mb-0">
+              Signed in as <span class="font-weight-bolder">{{ request.user }}</span>
+            </span>
+            <h6 class="nav-header"></h6>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}"><i class="fa fa-sign-out fa-fw"></i> Sign out</a>
+            </li>
+          </div>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/bminusl/ihatetobudget"><i class="fa fa-github fa-lg"></i></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Sign in <i class="fa fa-sign-in fa-fw"></i></a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
